@@ -174,7 +174,7 @@
 
 ;; XQuery syntax - TODO build a real parser
 (defvar xquery-mode-ncname () "NCName regex, in 1 group")
-(setq xquery-mode-ncname "\\(\\sw[-\\.[:word:]]*\\)")
+(setq xquery-mode-ncname "\\(\\sw[-_\\.[:word:]]*\\)")
 
 ;; highlighting needs a group, even if it's "" - so use (...?) not (...)?
 ;; note that this technique treats the local-name as optional,
