@@ -99,19 +99,19 @@
 (defvar xquery-mode-comment-start "(: "
   "String used to start an XQuery mode comment.")
 ;;(make-local-variable 'comment-start)
-(setq comment-start xquery-mode-comment-start)
+
 
 (defvar xquery-mode-comment-end " :)"
   "String used to end an XQuery mode comment.")
-(setq comment-end xquery-mode-comment-end)
+
 
 (defvar xquery-mode-comment-fill ":"
   "String used to fill an XQuery mode comment.")
-(setq comment-fill xquery-mode-comment-fill)
+
 
 (defvar xquery-mode-comment-start-skip "(:\\s-+"
   "Regexp to match an XQuery mode comment and any following whitespace.")
-(setq comment-start-skip xquery-mode-comment-start-skip)
+
 
 ;; NOTE - derived-mode will automatically copy some vars
 ;;   xquery-map as keymap
@@ -124,7 +124,12 @@
   (set (make-local-variable 'indent-line-function) 'xquery-indent-line)
   ;; apparently it's important to set at least an empty list up-front
   (set (make-local-variable 'font-lock-defaults)
-       (list (list ()))))
+       (list (list ())))
+  (set (make-local-variable 'comment-start) xquery-mode-comment-start)
+  (set (make-local-variable 'comment-end) xquery-mode-comment-end)
+  (set (make-local-variable 'comment-fill)  xquery-mode-comment-fill)
+  (set (make-local-variable 'comment-start-skip) xquery-mode-comment-start-skip)
+  )
 
 ;; XQuery doesn't have keywords, but these usually work...
 ;; TODO remove as many as possible, in favor of parsing
@@ -278,13 +283,13 @@
     (3 'nxml-element-colon-face)
     (4 'nxml-element-local-name-face))
    ;; TODO xml attribute or xmlns decl
-;;    (,(concat xquery-mode-qname "=\\([\"']\\)\\(.*?\\)\\([\"']\\)")
-;;     (1 'nxml-attribute-prefix-face)
-;;     (2 'nxml-attribute-colon-face)
-;;     (3 'nxml-attribute-local-name-face)
-;;     (4 'nxml-attribute-value-delimiter-face)
-;;     (5 'nxml-attribute-value-face)
-;;     (6 'nxml-attribute-value-delimiter-face))
+   ;;    (,(concat xquery-mode-qname "=\\([\"']\\)\\(.*?\\)\\([\"']\\)")
+   ;;     (1 'nxml-attribute-prefix-face)
+   ;;     (2 'nxml-attribute-colon-face)
+   ;;     (3 'nxml-attribute-local-name-face)
+   ;;     (4 'nxml-attribute-value-delimiter-face)
+   ;;     (5 'nxml-attribute-value-face)
+   ;;     (6 'nxml-attribute-value-delimiter-face))
    ;; xml comments
    ("\\(<!--\\)\\([^-]*\\)\\(-->\\)"
     (1 'nxml-comment-delimiter-face)
@@ -323,16 +328,16 @@ otherwise."
           (let ((forward-sexp-function nil)) (forward-sexp arg))))
     (if (looking-back ">\\s-*")
         (nxml-forward-balanced-item arg)
-                (let ((forward-sexp-function nil)) (forward-sexp arg)))))
+      (let ((forward-sexp-function nil)) (forward-sexp arg)))))
 
 ;; indentation
 (defvar xquery-indent-size tab-width "The size of each indent level.")
 
-(setq debug-on-error t) ; DEBUG
+;; (setq debug-on-error t) ;\ DEBUG ::)
 
 (defvar xquery-indent-debug nil)
 
-(setq xquery-indent-debug t) ; DEBUG
+;; (setq xquery-indent-debug t) ;\ DEBUG ::)
 
 (defun xquery-toggle-debug-indent ()
   "Toggle the debug flag used in `xquery-calculate-indentation'."
@@ -400,17 +405,17 @@ and a debug expression."
 
      ;; TODO this sort of works, but needs to set some state
      ;; TODO once we have state, how and when do we reset it?
-;;      ((save-excursion
-;;         (previous-line)
-;;         (message "current-word = %S" (current-word)) ; DEBUG
-;;         (message "looking-at xquery-indent-regex = %S"
-;;                  (looking-at xquery-indent-regex)) ; DEBUG
-;;          (looking-at xquery-indent-regex))
-;;       (save-excursion
-;;         (previous-line)
-;;         (list
-;;          (+ xquery-indent-size (current-indentation))
-;;          "previous line starts new block")))
+     ;;      ((save-excursion
+     ;;         (previous-line)
+     ;;         (message "current-word = %S" (current-word)) ; DEBUG
+     ;;         (message "looking-at xquery-indent-regex = %S"
+     ;;                  (looking-at xquery-indent-regex)) ; DEBUG
+     ;;          (looking-at xquery-indent-regex))
+     ;;       (save-excursion
+     ;;         (previous-line)
+     ;;         (list
+     ;;          (+ xquery-indent-size (current-indentation))
+     ;;          "previous line starts new block")))
 
      ;; default, using sexp parser
      (t
@@ -476,51 +481,51 @@ and a debug expression."
               (message "results-nxml = %S" results-nxml)))
         (let* (
                ;; 0. depth in parens
-                 (paren-level-eol (car results-eol))
-                 (indent
-                  (cond
-                   (comment-level-bol
+               (paren-level-eol (car results-eol))
+               (indent
+                (cond
+                 (comment-level-bol
                                         ; within a multi-line comment
                                         ; start of comment indentation + 1
-                    (+ 1 (save-excursion
-                           (goto-char comment-start-bol)
-                           (current-indentation) )) )
+                  (+ 1 (save-excursion
+                         (goto-char comment-start-bol)
+                         (current-indentation) )) )
                                         ; TODO multi-line prolog variable?
-                   (nil -1)
+                 (nil -1)
                                         ; mult-line module import?
-                   ((and (save-excursion
-                           (beginning-of-line)
-                           (looking-at "^\\s-*at\\s-+"))
-                         (save-excursion
-                           (beginning-of-line)
-                           (previous-line)
-                           (looking-at "^\\s-*import\\s-+module\\s-+")))
-                    xquery-indent-size)
+                 ((and (save-excursion
+                         (beginning-of-line)
+                         (looking-at "^\\s-*at\\s-+"))
+                       (save-excursion
+                         (beginning-of-line)
+                         (previous-line)
+                         (looking-at "^\\s-*import\\s-+module\\s-+")))
+                  xquery-indent-size)
                                         ; multi-line function decl?
                                         ; TODO handle more than 1 line previous
-                   ((and (save-excursion
-                           (beginning-of-line)
-                           (looking-at "^\\s-*as\\s-+"))
-                         (save-excursion
-                           (beginning-of-line)
-                           (previous-line)
-                           (looking-at
-                            "^\\s-*\\(define\\|declare\\)\\s-+function\\s-+")))
-                    xquery-indent-size)
+                 ((and (save-excursion
+                         (beginning-of-line)
+                         (looking-at "^\\s-*as\\s-+"))
+                       (save-excursion
+                         (beginning-of-line)
+                         (previous-line)
+                         (looking-at
+                          "^\\s-*\\(define\\|declare\\)\\s-+function\\s-+")))
+                  xquery-indent-size)
                                         ; default - use paren-level-bol
-                   (t (* xquery-indent-size
+                 (t (* xquery-indent-size
                                         ; special when simply closing 1 level
-                         (cond
-                          ((and (= paren-level-bol (+ 1 paren-level-eol))
-                                (looking-at "^\\s-*\\s)[,;]?\\s-*$") )
-                           paren-level-eol)
+                       (cond
+                        ((and (= paren-level-bol (+ 1 paren-level-eol))
+                              (looking-at "^\\s-*\\s)[,;]?\\s-*$") )
+                         paren-level-eol)
                                         ; factor in the nxml-indent
-                          ((and
-                            nxml-indent (> nxml-indent paren-level-bol))
-                           nxml-indent)
-                          (t paren-level-bol) ) )) ) ) )
-            (list (min 70 indent) results-bol results-eol) ) )
-        ) ) ) )
+                        ((and
+                          nxml-indent (> nxml-indent paren-level-bol))
+                         nxml-indent)
+                        (t paren-level-bol) ) )) ) ) )
+          (list (min 70 indent) results-bol results-eol) ) )
+      ) ) ) )
 
 (provide 'xquery-mode)
 
