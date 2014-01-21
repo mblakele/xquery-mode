@@ -118,6 +118,7 @@
 ;;   xquery-syntax-table as syntax-table
 ;;   xquery-abbrev-table as abbrev-table
 ;;   xquery-hook as initialization hook
+;;;###autoload
 (define-derived-mode xquery-mode fundamental-mode "XQuery"
   "A major mode for W3C XQuery 1.0"
   ;; indentation
@@ -310,10 +311,8 @@
      ))
 
 ;; file-extension mappings
-(add-to-list 'auto-mode-alist '(".xqe\\'" . xquery-mode))
-(add-to-list 'auto-mode-alist '(".xqr\\'" . xquery-mode))
-(add-to-list 'auto-mode-alist '(".xqx\\'" . xquery-mode))
-(add-to-list 'auto-mode-alist '(".xqy\\'" . xquery-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '(".xq[erxy]\\'" . xquery-mode))
 
 (defun xquery-forward-sexp (&optional arg)
   "XQuery forward s-expresssion.
@@ -529,4 +528,4 @@ and a debug expression."
 
 (provide 'xquery-mode)
 
-;;; end xquery-mode.el
+;;; xquery-mode.el ends here
