@@ -529,4 +529,4 @@ and a debug expression."
 
 (provide 'xquery-mode)
 
-;;; end xquery-mode.el
+;;; xquery-mode.el ends here
